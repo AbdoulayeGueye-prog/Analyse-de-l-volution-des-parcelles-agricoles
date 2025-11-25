@@ -1,0 +1,48 @@
+# This file contains metadata for your plugin.
+
+# This file should be included when you package your plugin.# Mandatory items:
+
+[general]
+name=Analyse de l’évolution des parcelles agricoles
+qgisMinimumVersion=3.34
+description=Analyse automatique de l’évolution des parcelles agricoles entre deux dates, avec calcul des variations de surface et détection des parcelles disparues, conservées ou nouvelles.
+version=1.0
+author=Abdoulaye Gueye , Dabakh Mbow, Dieumbe Fall
+email=pabdoulayegueye4@gmail.com,Dieumbe.Fall@USherbrooke.ca , Mbow.Abdou.Aziz.Dabakh@USherbrooke.ca
+
+about=Ce plugin permet d’analyser automatiquement l’évolution des parcelles agricoles entre deux dates différentes. Il détecte les parcelles conservées, disparues ou nouvelles, et calcule les variations de surface à partir d’une intersection spatiale entre les couches T1 et T2. Le plugin génère une couche finale annotée avec le statut d’évolution de chaque parcelle, ainsi qu’un tableau statistique optionnel. Il facilite ainsi l’étude spatio-temporelle des dynamiques agricoles.
+
+tracker=http://bugs
+repository=http://repo
+# End of mandatory metadata
+
+# Recommended items:
+
+hasProcessingProvider=no
+# Uncomment the following line and add your changelog:
+# changelog=
+
+# Tags are comma separated with spaces allowed
+tags=agriculture, analyse, parcelles, qgis, python
+
+
+homepage=http://homepage
+category=Plugins
+icon=icon.png
+# experimental flag
+experimental=False
+
+# deprecated flag (applies to the whole plugin, not just a single version)
+deprecated=False
+
+# Since QGIS 3.8, a comma separated list of plugins to be installed
+# (or upgraded) can be specified.
+# Check the documentation for more information.
+# plugin_dependencies=
+
+Category of the plugin: Raster, Vector, Database or Web
+# category=
+
+# If the plugin can run on QGIS Server.
+server=False
+

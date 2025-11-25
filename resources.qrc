@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/plugins/analyse_evolution_parcelles_agricoles" >
+        <file>icon.png</file>
+    </qresource>
+</RCC>
