@@ -24,6 +24,7 @@
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
+from qgis.core import QgsProject, QgsVectorLayer, QgsWkbTypes
 
 # Initialize Qt resources from file resources.py
 from .resources import *
@@ -81,19 +82,60 @@ class AnalyseEvolutionParcelles:
         """
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
         return QCoreApplication.translate('AnalyseEvolutionParcelles', message)
+     def remplir_couches(self):
+    #Remplit les listes déroulantes Couche T1 et Couche T2 avec les couches polygonales du projet.
+        self.dlg.cmbLayerT1.clear()
+        self.dlg.cmbLayerT2.clear()
+
+        couches = QgsProject.instance().mapLayers().values()
+
+        for couche in couches:
+            if isinstance(couche, QgsVectorLayer) and couche.geometryType() == QgsWkbTypes.PolygonGeometry:
+                self.dlg.cmbLayerT1.addItem(couche.name(), couche.id())
+                self.dlg.cmbLayerT2.addItem(couche.name(), couche.id())
+      def choisir_fichier_sortie(self):
+    
+    # Ouvre une boîte de dialogue pour choisir le fichier de sortie et écrit le chemin dans la ligne 'Fichier de sortie'.
+    
+        fichier, _ = QFileDialog.getSaveFileName(
+            self.dlg,
+        "Choisir le fichier de sortie",
+        "",
+        "GeoPackage (*.gpkg);;Shapefile ESRI (*.shp);;Tous les fichiers (*.*)"
+    )
+
+          if fichier:
+        # on affiche le chemin choisi dans la ligne de texte
+             self.dlg.lineEditOutput_2.setPlainText(fichier)
+        def get_layers_selectionnees(self):
+          idx_t1 = self.dlg.cmbLayerT1.currentIndex()
+          idx_t2 = self.dlg.cmbLayerT2.currentIndex()
+
+        if idx_t1 < 0 or idx_t2 < 0:
+            return None, None
+
+           id_t1 = self.dlg.cmbLayerT1.itemData(idx_t1)
+           id_t2 = self.dlg.cmbLayerT2.itemData(idx_t2)
+
+           couche_t1 = QgsProject.instance().mapLayer(id_t1)
+           couche_t2 = QgsProject.instance().mapLayer(id_t2)
+
+            return couche_t1, couche_t2
+
+       
 
 
-    def add_action(
-        self,
-        icon_path,
-        text,
-        callback,
-        enabled_flag=True,
-        add_to_menu=True,
-        add_to_toolbar=True,
-        status_tip=None,
-        whats_this=None,
-        parent=None):
+      def add_action(
+         self,
+         icon_path,
+         text,
+         callback,
+         enabled_flag=True,
+         add_to_menu=True,
+         add_to_toolbar=True,
+         status_tip=None,
+         whats_this=None,
+         parent=None):
         """Add a toolbar icon to the toolbar.
 
         :param icon_path: Path to the icon for this action. Can be a resource
@@ -188,6 +230,8 @@ class AnalyseEvolutionParcelles:
         if self.first_start == True:
             self.first_start = False
             self.dlg = AnalyseEvolutionParcellesDialog()
+            self.dlg.labelSortie.clicked.connect(self.choisir_fichier_sortie)
+         self.remplir_couches()
 
         # show the dialog
         self.dlg.show()
