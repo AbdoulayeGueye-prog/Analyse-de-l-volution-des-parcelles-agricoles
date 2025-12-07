@@ -46,3 +46,13 @@ feature-abdoulaye ─┼──> dev ───> main
 feature-dabakh    ─┘
 
 Dieumbe valide et fusionne les Pull Requests
+
+###Les regles de lq collab 
+
+- Toujours travailler sur une branche feature-*.
+- Ne jamais pousser directement sur main.
+- Documenter chaque fonction et chaque test.
+- Utiliser des commits clairs et concis.
+- Respecter les assignations du tableau Suivi des Sprints.
+
+
