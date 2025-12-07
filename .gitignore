@@ -1,0 +1,29 @@
+# --- Python ---
+__pycache__/
+*.pyc
+*.pyo
+*.log
+
+# --- Environnements virtuels ---
+venv/
+.env
+
+# --- Données géospatiales lourdes ---
+*.tif
+*.gpkg
+*.shp
+*.dbf
+*.prj
+*.shx
+*.qgs
+*.aux.xml
+
+# --- Fichiers QGIS inutiles ---
+.qgis2/
+.qgis3/
+*.qgz
+*.qgs~
+
+# --- Systèmes ---
+.DS_Store
+Thumbs.db
