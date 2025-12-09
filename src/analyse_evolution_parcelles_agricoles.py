@@ -81,6 +81,235 @@ class AnalyseEvolutionParcelles:
         """
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
         return QCoreApplication.translate('AnalyseEvolutionParcelles', message)
+     def remplir_couches(self):
+
+    #Remplit les listes déroulantes Couche T1 et Couche T2 avec les couches polygonales du projet.
+
+        self.dlg.cmbLayerT1.clear()
+
+        self.dlg.cmbLayerT2.clear()
+
+ 
+
+        couches = QgsProject.instance().mapLayers().values()
+
+ 
+
+        for couche in couches:
+
+            if isinstance(couche, QgsVectorLayer) and couche.geometryType() == QgsWkbTypes.PolygonGeometry:
+
+                self.dlg.cmbLayerT1.addItem(couche.name(), couche.id())
+
+                self.dlg.cmbLayerT2.addItem(couche.name(), couche.id())
+
+    def choisir_fichier_sortie(self):
+
+   
+
+    # Ouvre une boîte de dialogue pour choisir le fichier de sortie et écrit le chemin dans la ligne 'Fichier de sortie'.
+
+   
+
+        fichier, _ = QFileDialog.getSaveFileName(
+
+            self.dlg,
+
+        "Choisir le fichier de sortie",
+
+        "",
+
+        "GeoPackage (*.gpkg);;Shapefile ESRI (*.shp);;Tous les fichiers (*.*)"
+
+    )
+
+ 
+
+        if fichier:
+
+        # on affiche le chemin choisi dans la ligne de texte
+
+            self.dlg.lineEditOutput_2.setText(fichier)
+
+ 
+
+    def get_layers_selectionnees(self):
+
+        idx_t1 = self.dlg.cmbLayerT1.currentIndex()
+
+        idx_t2 = self.dlg.cmbLayerT2.currentIndex()
+
+ 
+
+        if idx_t1 < 0 or idx_t2 < 0:
+
+            return None, None
+
+ 
+
+        id_t1 = self.dlg.cmbLayerT1.itemData(idx_t1)
+
+        id_t2 = self.dlg.cmbLayerT2.itemData(idx_t2)
+
+ 
+
+        couche_t1 = QgsProject.instance().mapLayer(id_t1)
+
+        couche_t2 = QgsProject.instance().mapLayer(id_t2)
+
+ 
+
+        return couche_t1, couche_t2
+
+   
+
+    def preparer_couches(self, couche_t1, couche_t2):
+
+        """
+
+        Vérifie que les couches sont des polygones,
+
+        aligne le CRS de T2 sur T1 si nécessaire,
+
+        et corrige les géométries invalides.
+
+        Retourne (couche_t1_prete, couche_t2_prete) ou (None, None) en cas d'erreur.
+
+        """
+
+ 
+
+        # 1) Vérifier que ce sont bien des polygones
+
+        if couche_t1.geometryType() != QgsWkbTypes.PolygonGeometry:
+
+            QMessageBox.critical(
+
+                self.dlg,
+
+                "Erreur",
+
+                f"La couche T1 ({couche_t1.name()}) n'est pas une couche de polygones."
+
+            )
+
+            return None, None
+
+ 
+
+        if couche_t2.geometryType() != QgsWkbTypes.PolygonGeometry:
+
+            QMessageBox.critical(
+
+                self.dlg,
+
+                "Erreur",
+
+                f"La couche T2 ({couche_t2.name()}) n'est pas une couche de polygones."
+
+            )
+
+            return None, None
+
+ 
+
+        couche_t1_preparee = couche_t1
+
+        couche_t2_preparee = couche_t2
+
+ 
+
+        # 2) Vérifier / harmoniser le CRS
+
+        crs_t1 = couche_t1.crs()
+
+        crs_t2 = couche_t2.crs()
+
+ 
+
+        if crs_t1 != crs_t2:
+
+            # On reprojette T2 vers le CRS de T1
+
+            try:
+
+                params_reproj = {
+
+                    "INPUT": couche_t2,
+
+                    "TARGET_CRS": crs_t1,
+
+                    "OUTPUT": "memory:"
+
+                }
+
+                res_reproj = processing.run("native:reprojectlayer", params_reproj)
+
+                couche_t2_preparee = res_reproj["OUTPUT"]
+
+            except Exception as e:
+
+                QMessageBox.critical(
+
+                    self.dlg,
+
+                    "Erreur de reprojection",
+
+                    f"Impossible de reprojeter la couche T2 vers le CRS de T1.\n\nDétail : {e}"
+
+                )
+
+                return None, None
+
+ 
+
+        # 3) Corriger les géométries invalides
+
+        try:
+
+            res_fix_t1 = processing.run(
+
+                "native:fixgeometries",
+
+                {"INPUT": couche_t1_preparee, "OUTPUT": "memory:"}
+
+            )
+
+            couche_t1_preparee = res_fix_t1["OUTPUT"]
+
+ 
+
+            res_fix_t2 = processing.run(
+
+                "native:fixgeometries",
+
+                {"INPUT": couche_t2_preparee, "OUTPUT": "memory:"}
+
+            )
+
+            couche_t2_preparee = res_fix_t2["OUTPUT"]
+
+ 
+
+        except Exception as e:
+
+            QMessageBox.critical(
+
+                self.dlg,
+
+                "Erreur de correction",
+
+                f"Impossible de corriger les géométries invalides.\n\nDétail : {e}"
+
+            )
+
+            return None, None
+
+ 
+
+        return couche_t1_preparee, couche_t2_preparee
+
+
 
 
     def add_action(
