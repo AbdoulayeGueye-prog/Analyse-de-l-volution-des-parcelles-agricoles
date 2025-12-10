@@ -1,0 +1,5 @@
+qgis
+PyQt5
+numpy
+pandas
+matplotlib
