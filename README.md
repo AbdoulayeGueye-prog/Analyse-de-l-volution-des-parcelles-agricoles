@@ -34,9 +34,6 @@ Le plugin fonctionne exclusivement avec des **polygones** représentant des parc
 | Remarque | La BDPPAD fournit une segmentation précise des limites de parcelles agricoles utilisée comme base de comparaison pour l’analyse d’évolution |
 
 
-
-
-
 ### Contraintes sur les données
 - Les deux couches doivent être **polygonales**.  
 - Elles doivent représenter les **mêmes unités spatiales** (mêmes secteurs agricoles).  
